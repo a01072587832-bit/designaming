@@ -11,8 +11,8 @@
         /* 초기 레이어 설정 */
         #page1 { background-image: url('표지.png'); z-index: 100; cursor: pointer; transition: opacity 1s ease-out; }
         #page2 { background-image: url('지도.png'); z-index: 10; display: none; }
-        #page3 { z-index: 5; display: none; }
-        #page4 { z-index: 1; display: none; }
+        #page3 { z-index: 5; display: none; background-size: cover; background-position: center; }
+        #page4 { z-index: 1; display: none; background-size: cover; background-position: center; }
 
         /* 페이드 효과 클래스 */
         .fade-out { opacity: 0 !important; pointer-events: none; }
@@ -40,6 +40,29 @@
         #btn-B { top: 21%; left: 66%; width: 5%; height: 11%; }
         #btn-A { top: 31%; left: 72%; width: 9%; height: 7%; }
         #btn-C { top: 15%; left: 72%; width: 15%; height: 15%; }
+
+        /* [수정] C동 성공 이미지 위치 및 효과 */
+        #c-clear-img-p3 {
+            position: absolute;
+            top: 55%;         /* 중앙보다 조금 아래 */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 1500px;     /* 이미지 크기 */
+            z-index: 100;
+            display: none;
+            filter: drop-shadow(0 0 15px yellow);
+        }
+
+        /* [수정] 느릿하고 부드러운 봉봉 뛰는 효과 */
+        @keyframes gameClear {
+            0%, 100% { transform: translate(-50%, -50%); opacity: 1; }
+            50% { transform: translate(-50%, -60%); opacity: 0.8; } /* 위로 점프 */
+        }
+
+        .clear-effect {
+            display: block !important;
+            animation: gameClear 1.3s steps(4) infinite; /* 1.3초로 느리게, 부드럽게(ease-in-out) */
+        }
     </style>
 </head>
 <body>
@@ -49,7 +72,6 @@
     <div id="page2" class="screen">
         <img src="뒤로가기.png" onclick="location.reload()" style="position: fixed; top: 26px; left: 48px; width: 60px; z-index: 9999; cursor: pointer;">
         <img id="map-text" src="두번째 글자.png" class="retro-float" style="top: 43%; left: 40%; width: 800px; transform: translate(-50%, -50%);">
-        <!-- 각 건물 버튼들 -->
         <div id="btn-K" class="building-btn" onclick="goToThirdPage('K')"></div>
         <div id="btn-R" class="building-btn" onclick="goToThirdPage('R')"></div>
         <div id="btn-L" class="building-btn" onclick="goToThirdPage('L')"></div>
@@ -64,12 +86,18 @@
         <div id="btn-C" class="building-btn" onclick="goToThirdPage('C')"></div>
     </div>
 
+    <!-- 3페이지 (건물 내부) -->
     <div id="page3" class="screen">
         <img src="뒤로가기.png" onclick="goBackToMap()" style="position: fixed; top: 26px; left: 48px; width: 60px; z-index: 9999; cursor: pointer;">
         <img id="common-text" src="클릭히어.png" class="retro-float" style="top: 5%; width: 650px; display: none;">  
         <img id="second-text" src="아래로.png" class="retro-float" style="top: 32%; width: 380px; display: none;"> 
+
+        <!-- C동 전용 성공 이미지 -->
+        <img id="c-clear-img-p3" src="성공.png">
+
+        <!-- 일반 건물용 화살표 영역 -->
         <div id="arrow-link" onclick="goToFourthPage()" 
-             style="position: absolute; top: 63%; left: 48.5%; width: 5%; height: 6%; cursor: pointer; background-color: rgba(0, 0, 0, 0); z-index: 1000;">
+             style="position: absolute; top: 63%; left: 48.5%; width: 6%; height: 6%; cursor: pointer; background-color: rgba(0, 0, 255, 0); z-index: 1000;">
         </div>
     </div>
 
@@ -92,18 +120,36 @@
             currentBuildingName = buildingName;
             const page2 = document.getElementById('page2');
             const page3 = document.getElementById('page3');
+            const commonText = document.getElementById('common-text');
+            const secondText = document.getElementById('second-text');
+            const arrowLink = document.getElementById('arrow-link');
+            const cImgP3 = document.getElementById('c-clear-img-p3');
 
-            // 4페이지 이미지 미리 로딩 (하얀 화면 방지)
+            // 이미지 프리로딩
             const imgPreload = new Image();
             imgPreload.src = `${buildingName}_detail.png`;
 
             page3.style.backgroundImage = `url('${buildingName}.png')`;
             document.getElementById('map-text').style.display = 'none';
-            document.getElementById('common-text').style.display = 'block';
-            document.getElementById('second-text').style.display = 'block';
-            
-            // 애니메이션 로직: 3페이지를 아래에 깔고 2페이지를 서서히 지움
+
+            // C동 전용 UI 분기
+            if (buildingName === 'C') {
+                commonText.style.display = 'none';
+                secondText.style.display = 'none';
+                arrowLink.style.display = 'none';
+                if (cImgP3) cImgP3.classList.add('clear-effect');
+            } else {
+                commonText.style.display = 'block';
+                secondText.style.display = 'block';
+                arrowLink.style.display = 'block';
+                if (cImgP3) {
+                    cImgP3.classList.remove('clear-effect');
+                    cImgP3.style.display = 'none';
+                }
+            }
+
             page3.style.display = 'flex';
+            page3.style.opacity = '1';
             page3.style.zIndex = '5';
             page2.style.zIndex = '10'; 
             page2.classList.add('fade-out-effect');
@@ -111,14 +157,21 @@
             setTimeout(() => { 
                 page2.style.display = 'none'; 
                 page2.classList.remove('fade-out-effect'); 
-                page3.style.zIndex = '30'; // 완료 후 3페이지를 최상단으로
+                page3.style.zIndex = '30'; 
             }, 400);
         }
 
         function goBackToMap() {
             const page2 = document.getElementById('page2');
             const page3 = document.getElementById('page3');
+            const cImgP3 = document.getElementById('c-clear-img-p3');
+
             page3.style.display = 'none';
+            if (cImgP3) {
+                cImgP3.style.display = 'none';
+                cImgP3.classList.remove('clear-effect');
+            }
+
             page2.style.display = 'flex';
             page2.style.opacity = '1';
             page2.style.zIndex = '50';
@@ -128,12 +181,10 @@
         function goToFourthPage() {
             const page3 = document.getElementById('page3');
             const page4 = document.getElementById('page4');
-            
             page4.style.backgroundImage = `url('${currentBuildingName}_detail.png')`;
             page4.style.display = 'flex';
-            page4.style.zIndex = '60'; // 4페이지가 가장 위로
+            page4.style.zIndex = '60';
             page3.classList.add('fade-out-effect');
-
             setTimeout(() => { 
                 page3.style.display = 'none'; 
                 page3.classList.remove('fade-out-effect'); 

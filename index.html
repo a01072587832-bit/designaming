@@ -82,10 +82,11 @@
 
         #page4-overlay-img {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover;
+            top: 150px ; right: 120px; transform: translate(-50%, -50%); width: 600px;
             z-index: 150;
-            display: none; /* 클릭 전까지 숨김 */
+            display: none;
+            pointer-events: none; /* 클릭 전까지 숨김 */
+            animation: floating 1.8s steps(3) infinite;
         }
     </style>
 </head>
@@ -126,11 +127,11 @@
         </div>
     </div>
 
-    <div id="page4" class="screen" onclick="showOverlay()">
-        <img src="뒤로가기.png" onclick="goBackToThirdPage()" style="position: fixed; top: 26px; left: 48px; width: 60px; z-index: 9999; cursor: pointer;">
-        <img id="page4-text-img" class="retro-float" src="">
-
-        <img id="page4-overlay-img" src="">
+   <div id="page4" class="screen"> 
+    <img src="뒤로가기.png" onclick="goBackToThirdPage(event)" style="position: fixed; top: 26px; left: 48px; width: 60px; z-index: 9999; cursor: pointer;">
+    <img id="page4-text-img" class="retro-float" src="">
+    <img id="page4-overlay-img" src="">
+</div>
     </div>
 
     <script>
@@ -246,13 +247,19 @@
             setTimeout(() => { 
                 page3.style.display = 'none'; 
                 page3.classList.remove('fade-out-effect'); 
+                setTimeout(() => {
+            // 이미 4페이지에 머물고 있을 때만 에러창을 띄움 (다른 곳으로 나가지 않았다면)
+                    if (page4.style.display === 'flex') {
+                    overlayImg.style.display = 'block';
+                 }
+                 }, 1000); // 5000ms = 5초
             }, 400);
         }
          function showOverlay() {
-            const overlayImg = document.getElementById('page4-overlay-img');
-            if (overlayImg.src && !overlayImg.src.includes('undefined')) {
-                overlayImg.style.display = 'block';
-            }
+           const overlayImg = document.getElementById('page4-overlay-img');
+    // 이미 보이고 있다면 숨기고, 안 보이고 있다면 보여주기 (토글)
+           if (overlayImg.style.display === 'block') {overlayImg.style.display = 'none';} 
+           else {overlayImg.style.display = 'block';}
          }
 
          function goBackToThirdPage(event) {

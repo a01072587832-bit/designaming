@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>화면 전환 예제</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: sans-serif; background-color: #000; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: sans-serif; background-color: #ffffff; }
         .screen { width: 100%; height: 100vh; background-size: cover; background-position: center; position: absolute; top: 0; left: 0; display: flex; justify-content: center; align-items: center; }
 
         /* 초기 레이어 설정 */
@@ -233,13 +233,10 @@
             page4.style.backgroundImage = `url('${currentBuildingName}_detail.png')`;
             if(buildingData[currentBuildingName]) {
                 textImg.src = buildingData[currentBuildingName].text;
-                textImg.style.display = 'block';
                 overlayImg.src = buildingData[currentBuildingName].hint;
+                textImg.style.display = 'block';   /* 텍스트는 바로 보임 */
+                overlayImg.style.display = 'none'; /* 에러창은 일단 숨김 */
              }
-             else {
-                textImg.style.display = 'none';
-             }
-             overlayImg.style.display = 'none';
            
             page4.style.display = 'flex';
             page4.style.zIndex = '60';
@@ -249,9 +246,9 @@
                 page3.classList.remove('fade-out-effect'); 
                 setTimeout(() => {
             // 이미 4페이지에 머물고 있을 때만 에러창을 띄움 (다른 곳으로 나가지 않았다면)
-                    if (page4.style.display === 'flex') {
-                    overlayImg.style.display = 'block';
-                 }
+                     if (page4.style.display === 'flex') {
+                     overlayImg.style.display = 'block';
+                     }
                  }, 1000); // 5000ms = 5초
             }, 400);
         }

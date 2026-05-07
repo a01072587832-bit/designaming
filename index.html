@@ -26,6 +26,7 @@
             100% { transform: translateY(0); }
         }
         .retro-float { animation: floating 1.5s steps(3) infinite; position: absolute; z-index: 100; pointer-events: none; }
+        
 
         /* 건물 좌표 */
         #btn-K { top: 33%; left: 13%; width: 5%; height: 32%; }
@@ -63,6 +64,29 @@
             display: block !important;
             animation: gameClear 1.3s steps(4) infinite; /* 1.3초로 느리게, 부드럽게(ease-in-out) */
         }
+        #r-text {
+            top: 62%;         /* R동 건물(#btn-R)보다 살짝 위 */
+            left: 28%;        /* R동 건물의 가로 중앙 쯤 */
+            width: 300px;     /* 이미지 너비 (적당히 조절하세요) */
+            z-index: 30;      /* 지도 이미지보다는 위에, 클릭 영역보다는 아래에 */
+        }
+        #page4-text-img {
+            position: absolute;
+            top: 70px ;
+            left: 140px ; /* 위치 조정 가능 */
+            width: 400px;
+            z-index: 110;
+            pointer-events: none; /* 클릭 방해 금지 */
+            display: none;
+        }
+
+        #page4-overlay-img {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            z-index: 150;
+            display: none; /* 클릭 전까지 숨김 */
+        }
     </style>
 </head>
 <body>
@@ -72,6 +96,7 @@
     <div id="page2" class="screen">
         <img src="뒤로가기.png" onclick="location.reload()" style="position: fixed; top: 26px; left: 48px; width: 60px; z-index: 9999; cursor: pointer;">
         <img id="map-text" src="두번째 글자.png" class="retro-float" style="top: 43%; left: 40%; width: 800px; transform: translate(-50%, -50%);">
+        <img id="r-text" src="시작.png" class="retro-float">
         <div id="btn-K" class="building-btn" onclick="goToThirdPage('K')"></div>
         <div id="btn-R" class="building-btn" onclick="goToThirdPage('R')"></div>
         <div id="btn-L" class="building-btn" onclick="goToThirdPage('L')"></div>
@@ -101,12 +126,30 @@
         </div>
     </div>
 
-    <div id="page4" class="screen">
+    <div id="page4" class="screen" onclick="showOverlay()">
         <img src="뒤로가기.png" onclick="goBackToThirdPage()" style="position: fixed; top: 26px; left: 48px; width: 60px; z-index: 9999; cursor: pointer;">
+        <img id="page4-text-img" class="retro-float" src="">
+
+        <img id="page4-overlay-img" src="">
     </div>
 
     <script>
         let currentBuildingName = ""; 
+
+        const buildingData = {
+            'R': { text: 'R_text.png', hint: 'R_hint.png' },
+            'K': { text: 'K_text.png', hint: 'K_hint.png' },
+            'L': { text: 'L_text.png', hint: 'L_hint.png' },
+            'G': { text: 'G_text.png', hint: 'G_hint.png' },
+            'H': { text: 'H_text.png', hint: 'H_hint.png' },
+            'Q': { text: 'Q_text.png', hint: 'Q_hint.png' },
+            'F': { text: 'F_text.png', hint: 'F_hint.png' },
+            'MH': { text: 'MH_text.png', hint: 'MH_hint.png' },
+            'E': { text: 'E_text.png', hint: 'E_hint.png' },
+            'B': { text: 'B_text.png', hint: 'B_hint.png' },
+            'A': { text: 'A_text.png', hint: 'A_hint.png' },
+            'C': { text: 'C_text.png', hint: 'C_hint.png' },
+        }
 
         function showNextPage() {
             const page1 = document.getElementById('page1');
@@ -131,6 +174,7 @@
 
             page3.style.backgroundImage = `url('${buildingName}.png')`;
             document.getElementById('map-text').style.display = 'none';
+            document.getElementById('r-text').style.display = 'none';
 
             // C동 전용 UI 분기
             if (buildingName === 'C') {
@@ -176,12 +220,26 @@
             page2.style.opacity = '1';
             page2.style.zIndex = '50';
             document.getElementById('map-text').style.display = 'block';
+            document.getElementById('r-text').style.display = 'block';
         }
 
         function goToFourthPage() {
             const page3 = document.getElementById('page3');
             const page4 = document.getElementById('page4');
+            const textImg = document.getElementById('page4-text-img');
+            const overlayImg = document.getElementById('page4-overlay-img');
+
             page4.style.backgroundImage = `url('${currentBuildingName}_detail.png')`;
+            if(buildingData[currentBuildingName]) {
+                textImg.src = buildingData[currentBuildingName].text;
+                textImg.style.display = 'block';
+                overlayImg.src = buildingData[currentBuildingName].hint;
+             }
+             else {
+                textImg.style.display = 'none';
+             }
+             overlayImg.style.display = 'none';
+           
             page4.style.display = 'flex';
             page4.style.zIndex = '60';
             page3.classList.add('fade-out-effect');
@@ -190,12 +248,20 @@
                 page3.classList.remove('fade-out-effect'); 
             }, 400);
         }
+         function showOverlay() {
+            const overlayImg = document.getElementById('page4-overlay-img');
+            if (overlayImg.src && !overlayImg.src.includes('undefined')) {
+                overlayImg.style.display = 'block';
+            }
+         }
 
-        function goBackToThirdPage() {
+         function goBackToThirdPage(event) {
+            if(event) event.stopPropagation(); // 뒤로가기 클릭 시 오버레이 뜨는 것 방지
+            document.getElementById('page4-overlay-img').style.display = 'none';
             document.getElementById('page4').style.display = 'none';
             document.getElementById('page3').style.display = 'flex';
             document.getElementById('page3').style.zIndex = '70';
-        }
+         }
     </script>
 </body>
 </html>

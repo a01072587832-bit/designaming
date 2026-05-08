@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>화면 전환 예제</title>
+    <title>홍그와트</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: sans-serif; background-color: #ffffff; }
         .screen { width: 100%; height: 100vh; background-size: cover; background-position: center; position: absolute; top: 0; left: 0; display: flex; justify-content: center; align-items: center; }
 
-        /* 초기 레이어 설정 */
         #page1 { background-image: url('표지.png'); z-index: 100; cursor: pointer; transition: opacity 1s ease-out; }
         #page2 { background-image: url('지도.png'); z-index: 10; display: none; }
         #page3 { z-index: 5; display: none; background-size: cover; background-position: center; }
         #page4 { z-index: 1; display: none; background-size: cover; background-position: center; }
 
-        /* 페이드 효과 클래스 */
         .fade-out { opacity: 0 !important; pointer-events: none; }
         .fade-out-effect { opacity: 0 !important; transition: opacity 0.3s ease-out; pointer-events: none; }
 
@@ -26,7 +24,6 @@
             100% { transform: translateY(0); }
         }
         .retro-float { animation: floating 1.5s steps(3) infinite; position: absolute; z-index: 100; pointer-events: none; }
-        
 
         /* 건물 좌표 */
         #btn-K { top: 33%; left: 13%; width: 5%; height: 32%; }
@@ -42,51 +39,42 @@
         #btn-A { top: 31%; left: 72%; width: 9%; height: 7%; }
         #btn-C { top: 15%; left: 72%; width: 15%; height: 15%; }
 
-        /* [수정] C동 성공 이미지 위치 및 효과 */
-        #c-clear-img-p3 {
-            position: absolute;
-            top: 55%;         /* 중앙보다 조금 아래 */
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 1500px;     /* 이미지 크기 */
-            z-index: 100;
-            display: none;
-            filter: drop-shadow(0 0 15px yellow);
-        }
+        #c-clear-img-p3 { position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); width: 1500px; z-index: 100; display: none; filter: drop-shadow(0 0 15px yellow); }
+        @keyframes gameClear { 0%, 100% { transform: translate(-50%, -50%); opacity: 1; } 50% { transform: translate(-50%, -60%); opacity: 0.8; } }
+        .clear-effect { display: block !important; animation: gameClear 1.3s steps(4) infinite; }
+        #r-text { top: 62%; left: 28%; width: 300px; z-index: 30; }
 
-        /* [수정] 느릿하고 부드러운 봉봉 뛰는 효과 */
-        @keyframes gameClear {
-            0%, 100% { transform: translate(-50%, -50%); opacity: 1; }
-            50% { transform: translate(-50%, -60%); opacity: 0.8; } /* 위로 점프 */
-        }
+        #page4-text-img { position: absolute; top: 70px; left: 140px; width: 400px; z-index: 110; pointer-events: none; display: none; }
 
-        .clear-effect {
-            display: block !important;
-            animation: gameClear 1.3s steps(4) infinite; /* 1.3초로 느리게, 부드럽게(ease-in-out) */
-        }
-        #r-text {
-            top: 62%;         /* R동 건물(#btn-R)보다 살짝 위 */
-            left: 28%;        /* R동 건물의 가로 중앙 쯤 */
-            width: 300px;     /* 이미지 너비 (적당히 조절하세요) */
-            z-index: 30;      /* 지도 이미지보다는 위에, 클릭 영역보다는 아래에 */
-        }
-        #page4-text-img {
+        /* [핵심수정] 힌트 컨테이너 - 위치 고정을 위해 display: block으로 관리 */
+        .hint-container {
             position: absolute;
-            top: 70px ;
-            left: 140px ; /* 위치 조정 가능 */
-            width: 400px;
-            z-index: 110;
-            pointer-events: none; /* 클릭 방해 금지 */
-            display: none;
+            top: 150px; /* 중앙 기준 */
+            right: 120px; 
+            transform: translate(-50%, -50%); /* 정확히 화면 정중앙 */
+            width: 600px;
+            z-index: 500; /* 아주 높게 설정 */
+            display: none; 
+            animation: floating 1.8s steps(3) infinite;
         }
 
         #page4-overlay-img {
+            width: 100%;
+            display: block;
+            pointer-events: auto; /* 이미지 위 클릭 허용 */
+        }
+
+        /* [핵심수정] OK 버튼 클릭 영역 - 빨간색으로 확인 후 투명하게 바꾸세요 */
+        .ok-click-area {
             position: absolute;
-            top: 150px ; right: 120px; transform: translate(-50%, -50%); width: 600px;
-            z-index: 150;
-            display: none;
-            pointer-events: none; /* 클릭 전까지 숨김 */
-            animation: floating 1.8s steps(3) infinite;
+            top: 65%; 
+            left: 39%;
+            transform: translateX(-50%, -50%);
+            width: 100px; 
+            height: 45px; 
+            background-color: rgba(0, 0, 0, 0.5); /* <-- 지금은 빨간색입니다. 확인 후 0으로 변경! */
+            cursor: pointer;
+            z-index: 600;
         }
     </style>
 </head>
@@ -112,26 +100,24 @@
         <div id="btn-C" class="building-btn" onclick="goToThirdPage('C')"></div>
     </div>
 
-    <!-- 3페이지 (건물 내부) -->
     <div id="page3" class="screen">
         <img src="뒤로가기.png" onclick="goBackToMap()" style="position: fixed; top: 26px; left: 48px; width: 60px; z-index: 9999; cursor: pointer;">
         <img id="common-text" src="클릭히어.png" class="retro-float" style="top: 5%; width: 650px; display: none;">  
         <img id="second-text" src="아래로.png" class="retro-float" style="top: 32%; width: 380px; display: none;"> 
-
-        <!-- C동 전용 성공 이미지 -->
         <img id="c-clear-img-p3" src="성공.png">
-
-        <!-- 일반 건물용 화살표 영역 -->
         <div id="arrow-link" onclick="goToFourthPage()" 
              style="position: absolute; top: 63%; left: 48.5%; width: 6%; height: 6%; cursor: pointer; background-color: rgba(0, 0, 255, 0); z-index: 1000;">
         </div>
     </div>
 
-   <div id="page4" class="screen"> 
-    <img src="뒤로가기.png" onclick="goBackToThirdPage(event)" style="position: fixed; top: 26px; left: 48px; width: 60px; z-index: 9999; cursor: pointer;">
-    <img id="page4-text-img" class="retro-float" src="">
-    <img id="page4-overlay-img" src="">
-</div>
+    <div id="page4" class="screen"> 
+        <img src="뒤로가기.png" onclick="goBackToThirdPage(event)" style="position: fixed; top: 26px; left: 48px; width: 60px; z-index: 9999; cursor: pointer;">
+        <img id="page4-text-img" class="retro-float" src="">
+        
+        <div id="hint-box" class="hint-container">
+            <div class="ok-click-area" onclick="document.getElementById('hint-box').style.display='none'"></div>
+            <img id="page4-overlay-img" src="">
+        </div>
     </div>
 
     <script>
@@ -153,119 +139,71 @@
         }
 
         function showNextPage() {
-            const page1 = document.getElementById('page1');
-            const page2 = document.getElementById('page2');
-            page2.style.display = 'flex'; 
-            page1.classList.add('fade-out');
-            setTimeout(() => { page1.style.display = 'none'; }, 1000);
+            document.getElementById('page1').classList.add('fade-out');
+            document.getElementById('page2').style.display = 'flex';
+            setTimeout(() => { document.getElementById('page1').style.display = 'none'; }, 1000);
         }
 
         function goToThirdPage(buildingName) {
             currentBuildingName = buildingName;
-            const page2 = document.getElementById('page2');
-            const page3 = document.getElementById('page3');
-            const commonText = document.getElementById('common-text');
-            const secondText = document.getElementById('second-text');
-            const arrowLink = document.getElementById('arrow-link');
-            const cImgP3 = document.getElementById('c-clear-img-p3');
+            const p2 = document.getElementById('page2');
+            const p3 = document.getElementById('page3');
 
-            // 이미지 프리로딩
-            const imgPreload = new Image();
-            imgPreload.src = `${buildingName}_detail.png`;
+            p3.style.backgroundImage = `url('${buildingName}.png')`;
+            p2.classList.add('fade-out-effect');
 
-            page3.style.backgroundImage = `url('${buildingName}.png')`;
-            document.getElementById('map-text').style.display = 'none';
-            document.getElementById('r-text').style.display = 'none';
-
-            // C동 전용 UI 분기
             if (buildingName === 'C') {
-                commonText.style.display = 'none';
-                secondText.style.display = 'none';
-                arrowLink.style.display = 'none';
-                if (cImgP3) cImgP3.classList.add('clear-effect');
+                document.getElementById('c-clear-img-p3').classList.add('clear-effect');
+                document.getElementById('arrow-link').style.display = 'none';
             } else {
-                commonText.style.display = 'block';
-                secondText.style.display = 'block';
-                arrowLink.style.display = 'block';
-                if (cImgP3) {
-                    cImgP3.classList.remove('clear-effect');
-                    cImgP3.style.display = 'none';
-                }
+                document.getElementById('c-clear-img-p3').classList.remove('clear-effect');
+                document.getElementById('common-text').style.display = 'block';
+                document.getElementById('second-text').style.display = 'block';
+                document.getElementById('arrow-link').style.display = 'block';
             }
 
-            page3.style.display = 'flex';
-            page3.style.opacity = '1';
-            page3.style.zIndex = '5';
-            page2.style.zIndex = '10'; 
-            page2.classList.add('fade-out-effect');
-
-            setTimeout(() => { 
-                page2.style.display = 'none'; 
-                page2.classList.remove('fade-out-effect'); 
-                page3.style.zIndex = '30'; 
-            }, 400);
+            p3.style.display = 'flex';
+            setTimeout(() => { p2.style.display = 'none'; p2.classList.remove('fade-out-effect'); }, 400);
         }
 
         function goBackToMap() {
-            const page2 = document.getElementById('page2');
-            const page3 = document.getElementById('page3');
-            const cImgP3 = document.getElementById('c-clear-img-p3');
-
-            page3.style.display = 'none';
-            if (cImgP3) {
-                cImgP3.style.display = 'none';
-                cImgP3.classList.remove('clear-effect');
-            }
-
-            page2.style.display = 'flex';
-            page2.style.opacity = '1';
-            page2.style.zIndex = '50';
-            document.getElementById('map-text').style.display = 'block';
-            document.getElementById('r-text').style.display = 'block';
+            document.getElementById('page3').style.display = 'none';
+            document.getElementById('page2').style.display = 'flex';
         }
 
         function goToFourthPage() {
-            const page3 = document.getElementById('page3');
-            const page4 = document.getElementById('page4');
-            const textImg = document.getElementById('page4-text-img');
-            const overlayImg = document.getElementById('page4-overlay-img');
+            const p3 = document.getElementById('page3');
+            const p4 = document.getElementById('page4');
+            const hBox = document.getElementById('hint-box');
 
-            page4.style.backgroundImage = `url('${currentBuildingName}_detail.png')`;
-            if(buildingData[currentBuildingName]) {
-                textImg.src = buildingData[currentBuildingName].text;
-                overlayImg.src = buildingData[currentBuildingName].hint;
-                textImg.style.display = 'block';   /* 텍스트는 바로 보임 */
-                overlayImg.style.display = 'none'; /* 에러창은 일단 숨김 */
-             }
-           
-            page4.style.display = 'flex';
-            page4.style.zIndex = '60';
-            page3.classList.add('fade-out-effect');
-            setTimeout(() => { 
-                page3.style.display = 'none'; 
-                page3.classList.remove('fade-out-effect'); 
+            p4.style.backgroundImage = `url('${currentBuildingName}_detail.png')`;
+            document.getElementById('page4-text-img').src = buildingData[currentBuildingName].text;
+            document.getElementById('page4-text-img').style.display = 'block';
+            document.getElementById('page4-overlay-img').src = buildingData[currentBuildingName].hint;
+            
+            hBox.style.display = 'none'; // 초기화
+            p4.style.display = 'flex';
+            p3.classList.add('fade-out-effect');
+
+            setTimeout(() => {
+                p3.style.display = 'none';
+                p3.classList.remove('fade-out-effect');
+                // 1초 뒤 힌트 등장
                 setTimeout(() => {
-            // 이미 4페이지에 머물고 있을 때만 에러창을 띄움 (다른 곳으로 나가지 않았다면)
-                     if (page4.style.display === 'flex') {
-                     overlayImg.style.display = 'block';
-                     }
-                 }, 1000); // 5000ms = 5초
+                    if (p4.style.display === 'flex') {
+                        hBox.style.display = 'block';
+                        console.log("Hint Box Open!"); // 확인용 로그
+                    }
+                }, 1000);
             }, 400);
         }
-         function showOverlay() {
-           const overlayImg = document.getElementById('page4-overlay-img');
-    // 이미 보이고 있다면 숨기고, 안 보이고 있다면 보여주기 (토글)
-           if (overlayImg.style.display === 'block') {overlayImg.style.display = 'none';} 
-           else {overlayImg.style.display = 'block';}
-         }
 
-         function goBackToThirdPage(event) {
-            if(event) event.stopPropagation(); // 뒤로가기 클릭 시 오버레이 뜨는 것 방지
-            document.getElementById('page4-overlay-img').style.display = 'none';
+        function goBackToThirdPage(event) {
+            if(event) event.stopPropagation();
+            document.getElementById('hint-box').style.display = 'none';
             document.getElementById('page4').style.display = 'none';
             document.getElementById('page3').style.display = 'flex';
-            document.getElementById('page3').style.zIndex = '70';
-         }
+        }
     </script>
 </body>
 </html>

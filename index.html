@@ -143,28 +143,45 @@
             document.getElementById('page2').style.display = 'flex';
             setTimeout(() => { document.getElementById('page1').style.display = 'none'; }, 1000);
         }
-
         function goToThirdPage(buildingName) {
-            currentBuildingName = buildingName;
-            const p2 = document.getElementById('page2');
-            const p3 = document.getElementById('page3');
+         currentBuildingName = buildingName;
+         const p2 = document.getElementById('page2');
+         const p3 = document.getElementById('page3');
+    
+    // 제어할 요소들 가져오기
+         const commonText = document.getElementById('common-text');
+         const secondText = document.getElementById('second-text');
+         const arrowLink = document.getElementById('arrow-link');
+         const cImgP3 = document.getElementById('c-clear-img-p3');
 
-            p3.style.backgroundImage = `url('${buildingName}.png')`;
-            p2.classList.add('fade-out-effect');
+         p3.style.backgroundImage = `url('${buildingName}.png')`;
+         p2.classList.add('fade-out-effect');
 
-            if (buildingName === 'C') {
-                document.getElementById('c-clear-img-p3').classList.add('clear-effect');
-                document.getElementById('arrow-link').style.display = 'none';
-            } else {
-                document.getElementById('c-clear-img-p3').classList.remove('clear-effect');
-                document.getElementById('common-text').style.display = 'block';
-                document.getElementById('second-text').style.display = 'block';
-                document.getElementById('arrow-link').style.display = 'block';
-            }
+    // [수정 핵심] C동일 때와 아닐 때를 명확히 구분
+          if (buildingName === 'C') {
+        // C동일 때: 안내 문구와 화살표 숨김, 성공 이미지 표시
+          commonText.style.display = 'none';
+          secondText.style.display = 'none';
+          arrowLink.style.display = 'none';
+          if (cImgP3) cImgP3.classList.add('clear-effect');
+         } else {
+        // C동이 아닐 때: 안내 문구와 화살표 표시, 성공 이미지 숨김
+          commonText.style.display = 'block';
+          secondText.style.display = 'block';
+          arrowLink.style.display = 'block';
+             if (cImgP3) {
+             cImgP3.classList.remove('clear-effect');
+             cImgP3.style.display = 'none';
+             }
+         }
 
-            p3.style.display = 'flex';
-            setTimeout(() => { p2.style.display = 'none'; p2.classList.remove('fade-out-effect'); }, 400);
-        }
+    p3.style.display = 'flex';
+    setTimeout(() => { 
+        p2.style.display = 'none'; 
+        p2.classList.remove('fade-out-effect'); 
+    }, 400);
+}
+        
 
         function goBackToMap() {
             document.getElementById('page3').style.display = 'none';
